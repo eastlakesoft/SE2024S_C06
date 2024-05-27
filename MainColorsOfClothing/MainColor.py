@@ -158,7 +158,7 @@ if os.path.exists(annotation_file_path):
                         # 创建掩码，前景像素为1，背景像素为0
                         foreground_mask = (final_foreground[:, :, 0] != 0).astype(np.uint8)
 
-                        # 绘制直方图和找到主要颜色
+                        # 绘制直方图并找到主要颜色
                         normalized_quantized_histogram = plot_histograms(hsv_image, foreground_mask)
                         Flag = find_main_color(normalized_quantized_histogram)
 
