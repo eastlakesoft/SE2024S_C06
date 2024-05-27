@@ -137,7 +137,6 @@ if os.path.exists(annotation_file_path):
                         else:
                             rect = generate_initial_rect_complex(cropped_image)
 
-
                         # 应用GrabCut算法并生成S图
                         result, s_image = apply_grabcut(cropped_image, rect)
 
