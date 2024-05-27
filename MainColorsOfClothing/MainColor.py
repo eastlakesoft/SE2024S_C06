@@ -38,7 +38,7 @@ def plot_histograms(image, mask):
     total_pixels = sum(quantized_histogram)
     normalized_quantized_histogram = quantized_histogram / total_pixels
 
-    # 显示未量化的直方图、量化直方图和归一化的量化直方图
+    # 显示三个直方图
     plt.figure(figsize=(15, 5))
 
     # 绘制未量化的直方图
