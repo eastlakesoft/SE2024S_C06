@@ -58,37 +58,18 @@ def plot_histograms(image, mask):
     return normalized_quantized_histogram
 
 
-def find_main_color(normalized_quantized_histogram, threshold=0.65):
+def find_main_color(histogram, threshold=0.500):
     # 找到主要颜色分量及其索引
-    max_index = np.argmax(normalized_quantized_histogram)
-    main_color_proportion = normalized_quantized_histogram[max_index]
+    max_index = np.argmax(histogram)
+    main_color_proportion = histogram[max_index]
 
-    # 计算主要颜色占比及左右各1的颜色分量的占比之和
     if max_index > 0:
-        main_color_proportion += normalized_quantized_histogram[max_index - 1]
-        normalized_quantized_histogram[max_index - 1] = 0  # 将左边颜色分量占比置为0
+        main_color_proportion += histogram[max_index - 1]
 
-    if max_index < len(normalized_quantized_histogram) - 1:
-        main_color_proportion += normalized_quantized_histogram[max_index + 1]
-        normalized_quantized_histogram[max_index + 1] = 0  # 将右边颜色分量占比置为0
+    if max_index < len(histogram) - 1:
+        main_color_proportion += histogram[max_index + 1]
 
-    # 更新主颜色位置的值为新的占比值
-    normalized_quantized_histogram[max_index] = main_color_proportion
+    return main_color_proportion < threshold
 
-    # 创建Flag数组，并存储主颜色特征值
-    Flag = [0]  # 初始时只有一个元素，表示长度
-
-    # 添加主颜色索引和占比到Flag数组
-    Flag.append(max_index)
-    Flag.append(main_color_proportion)
-
-    # 更新Flag数组的第一个元素为当前数组长度
-    Flag[0] = len(Flag) - 1  # 第一个元素不计入长度
-
-    # 打印Flag数组和其中的特征值
-    print("Flag数组:", Flag)
-    print("Flag数组长度:", Flag[0])
-    print("主要颜色索引:", Flag[1])
-    print("主要颜色比例:", Flag[2])
 
 
