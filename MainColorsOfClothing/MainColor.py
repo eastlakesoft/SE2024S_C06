@@ -6,11 +6,10 @@ import HSV
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-# 去除无效颜色yo
+# 去除无效颜色
 def remove_invalid_colors(colors, threshold=15):
     mask = np.all(colors > threshold, axis=1) & np.all(colors < 255 - threshold, axis=1)
     return colors[mask]
-
 
 # 提取图像的主要颜色
 def extract_dominant_colors(image, k=3):
@@ -31,7 +30,6 @@ def extract_dominant_colors(image, k=3):
 
     return dominant_colors.astype(int)
 
-
 # 显示颜色
 def display_colors(colors, title="Colors"):
     num_colors = len(colors)
@@ -50,12 +48,10 @@ def display_colors(colors, title="Colors"):
     plt.suptitle(title)
     plt.show()
 
-
 # 判断是否为花色服装
 def is_multicolor(dominant_colors, threshold=50):
     color_distance = np.linalg.norm(dominant_colors[0] - dominant_colors[1])
     return color_distance > threshold
-
 
 annotation_file_path = r'D:/tuxiangchuli/Anno_coarse/list_bbox.txt'
 
@@ -107,21 +103,28 @@ if os.path.exists(annotation_file_path):
                         cv2.namedWindow("Final Foreground", cv2.WINDOW_NORMAL)
                         cv2.imshow("Final Foreground", final_foreground)
 
-                        dominant_colors = extract_dominant_colors(final_foreground)
-                        hsv_image = cv2.cvtColor(final_foreground, cv2.COLOR_BGR2HSV)
-                        foreground_mask = (final_foreground[:, :, 0] != 0).astype(np.uint8)
+                        # 判断抠图是否失败（根据前景图像是否足够大）
+                        if np.sum(final_foreground) == 0:  # 抠图失败，使用原图
+                            dominant_colors = extract_dominant_colors(cropped_image)
+                            hsv_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2HSV)
+                            foreground_mask = (cropped_image[:, :, 0] != 0).astype(np.uint8)
+                        else:  # 抠图成功，使用抠出的前景图
+                            dominant_colors = extract_dominant_colors(final_foreground)
+                            hsv_image = cv2.cvtColor(final_foreground, cv2.COLOR_BGR2HSV)
+                            foreground_mask = (final_foreground[:, :, 0] != 0).astype(np.uint8)
+
                         normalized_quantized_histogram = HSV.plot_histograms(hsv_image, foreground_mask)
 
                         # 判断是否为花色服装
-                        is_flower = is_multicolor(dominant_colors,
-                                                  threshold=70) or HSV.find_main_color(
-                            normalized_quantized_histogram, threshold=0.550)
+                        is_flower = is_multicolor(dominant_colors, threshold=70) or HSV.find_main_color(
+                            normalized_quantized_histogram, threshold=0.500)
 
                         if is_flower:
                             display_colors(dominant_colors, title="Flower Clothing: Top 2 Colors")
                         else:
                             display_colors([dominant_colors[0]], title="Solid Clothing: Main Color")
 
+                        # 确保所有窗口都关闭，以便plt显示图表和主颜色
                         if cv2.waitKey(0) & 0xFF == ord('q'):
                             cv2.destroyAllWindows()
                             break
