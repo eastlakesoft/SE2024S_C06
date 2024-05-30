@@ -53,7 +53,7 @@ def plot_histograms(image, mask):
     plt.ylabel('Color Proportion')
 
     plt.tight_layout()
-    plt.savefig("histograms.png")  # 保存图像
+    # plt.savefig("histograms.png")  # 保存图像
     plt.close()  # 关闭图像以释放内存
 
     return normalized_quantized_histogram
