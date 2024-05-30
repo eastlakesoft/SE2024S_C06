@@ -5,7 +5,7 @@ import CutOut
 import HSV
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-
+from PIL import Image
 # 去除无效颜色
 def remove_invalid_colors(colors, threshold=15):
     mask = np.all(colors > threshold, axis=1) & np.all(colors < 255 - threshold, axis=1)
@@ -31,7 +31,7 @@ def extract_dominant_colors(image, k=3):
     return dominant_colors.astype(int)
 
 # 显示颜色
-def display_colors(colors, title="Colors"):
+def display_colors(colors, title="颜色", filename="main_color.png"):
     num_colors = len(colors)
     fig, ax = plt.subplots(1, num_colors, figsize=(num_colors * 2, 2))
     if num_colors == 1:
@@ -46,7 +46,16 @@ def display_colors(colors, title="Colors"):
             ax[i].imshow(color_img[..., ::-1])  # 将BGR转换为RGB进行显示
             ax[i].axis('off')
     plt.suptitle(title)
-    plt.show()
+    plt.savefig("temp_plot.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+    # 使用Pillow保存截图
+    img = Image.open("temp_plot.png")
+    img.save(filename)
+    os.remove("temp_plot.png")  # 删除临时文件
+
+
+
 
 # 判断是否为花色服装
 def is_multicolor(dominant_colors, threshold=50):
