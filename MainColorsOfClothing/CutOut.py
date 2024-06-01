@@ -237,6 +237,6 @@ def display_colors(colors, title="颜色", filename="main_color.png"):
 
 
 # 判断是否为花色服装
-def is_multicolor(dominant_colors, threshold=50):
+def is_multicolor(dominant_colors, threshold=50):#
     color_distance = np.linalg.norm(dominant_colors[0] - dominant_colors[1])
     return color_distance > threshold
