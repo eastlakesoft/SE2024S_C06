@@ -183,3 +183,60 @@ def is_multicolor(dominant_colors, threshold=50):
 
     color_distance = np.linalg.norm(dominant_colors[0] - dominant_colors[1])  # 计算颜色之间的欧式距离
     return color_distance > threshold  # 如果距离大于阈值，则返回True，否则返回False
+
+# 去除无效颜色
+def remove_invalid_colors(colors, threshold=15):
+    mask = np.all(colors > threshold, axis=1) & np.all(colors < 255 - threshold, axis=1)
+    return colors[mask]
+
+# 提取图像的主要颜色
+def extract_dominant_colors(image, k=3):
+    pixels = image.reshape((-1, 3))
+    pixels = remove_invalid_colors(pixels)
+
+    if len(pixels) == 0:
+        return [[0, 0, 0], [0, 0, 0]]  # 如果没有有效像素，返回黑色
+
+    pixels = np.float32(pixels)
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(pixels)
+    centers = kmeans.cluster_centers_
+    labels = kmeans.labels_
+
+    _, counts = np.unique(labels, return_counts=True)
+    dominant_colors = centers[np.argsort(counts)[-2:]]  # 选择占比最大的两个颜色
+
+    return dominant_colors.astype(int)
+
+# 显示颜色
+def display_colors(colors, title="颜色", filename="main_color.png"):
+    num_colors = len(colors)
+    fig, ax = plt.subplots(1, num_colors, figsize=(num_colors * 2, 2))
+    if num_colors == 1:
+        color_img = np.zeros((50, 50, 3), dtype=np.uint8)
+        color_img[:, :] = colors[0]
+        ax.imshow(color_img[..., ::-1])  # 将BGR转换为RGB进行显示
+        ax.axis('off')
+    else:
+        for i, color in enumerate(colors):
+            color_img = np.zeros((50, 50, 3), dtype=np.uint8)
+            color_img[:, :] = color
+            ax[i].imshow(color_img[..., ::-1])  # 将BGR转换为RGB进行显示
+            ax[i].axis('off')
+    plt.suptitle(title)
+    plt.show()
+    plt.savefig("temp_plot.png", bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+    # 使用Pillow保存截图
+    img = Image.open("temp_plot.png")
+    img.save(filename)
+    os.remove("temp_plot.png")  # 删除临时文件
+
+
+
+
+# 判断是否为花色服装
+def is_multicolor(dominant_colors, threshold=50):
+    color_distance = np.linalg.norm(dominant_colors[0] - dominant_colors[1])
+    return color_distance > threshold
